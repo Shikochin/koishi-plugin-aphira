@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-aphira",
   "description": "A bunch of essential tools for Phira",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -11,6 +11,10 @@
   "contributors": [
     "Shikochin <i@shikoch.in>"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shikchin/koishi-plugin-aphira.git"
+  },
   "koishi": {
     "description": {
       "en": "A bunch of essential tools for Phira"
@@ -23,7 +27,7 @@
   },
   "license": "MIT",
   "keywords": [
-    "chatbot",
+    "phira",
     "koishi",
     "plugin"
   ],
