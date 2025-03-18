@@ -2,6 +2,8 @@ import { Context, Schema } from "koishi";
 import { ChartInfo, UserInfo } from "./types";
 
 import {} from "koishi-plugin-puppeteer";
+export const using = ["puppeteer"] as const;
+import outdent from "outdent";
 
 export const name = "aphira";
 
@@ -28,17 +30,20 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
   let tags = "";
   chartInfo.tags.forEach((tag, index) => {
     if (index < 4) {
-      tags += `<div class="tag glass-card">${tag}</div>`;
+      tags += outdent`<div class="tag glass-card">${tag}</div>`;
     }
   });
-  const htmlTemplate = `<!DOCTYPE html>
-<html lang="en">
+  const htmlTemplate = outdent`
+<html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+SC:wght@100..900&family=Poppins:ital@0;1&display=swap" rel="stylesheet">
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: Poppins, Noto Sans SC,Noto Sans JP, serif;
         padding: 20px;
         margin: 0;
         display: flex;
@@ -49,7 +54,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       .container {
         display: flex;
         gap: 20px;
-        max-width: 1200px;
+        max-width: 1300px;
         width: 100%;
         padding: 30px;
       }
@@ -73,7 +78,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         -webkit-backdrop-filter: blur(10px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.3);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: rgba(61, 106, 120, 0.8);
+        background-color: rgba(100, 135, 148, 0.8);
         border-radius: 20px;
         padding: 20px;
         position: relative;
@@ -92,19 +97,18 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       .main-card {
         height: 400px;
         position: relative;
-        padding: 0; /* 移除内边距 */
-        overflow: hidden; /* 确保图片不会溢出圆角 */
+        padding: 0;
+        overflow: hidden;
         border-radius: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
 
-      /* 图片样式 */
       .illustration-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 20px; /* 与卡片相同的圆角 */
-        display: block; /* 移除底部间隙 */
+        border-radius: 20px;
+        display: block;
         filter: blur(2px);
         overflow: auto;
       }
@@ -117,7 +121,8 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       }
 
       .bottom-cards {
-        display: flex;
+        display: grid;
+        grid-template-rows: 1fr 1fr;
         gap: 20px;
       }
 
@@ -126,7 +131,9 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         height: 100px;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        font-size: 25px;
       }
 
       .profile-card {
@@ -141,8 +148,8 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         padding: 10px 20px;
         display: inline-block;
         text-align: center;
-        z-index: 2; /* 确保按钮在图片上方 */
-        position: absolute; /* 绝对定位 */
+        z-index: 2;
+        position: absolute;
       }
 
       .left-button {
@@ -152,6 +159,15 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
 
       .right-button {
         top: 20px;
+        right: 20px;
+      }
+
+      .left-bottom-button {
+        bottom: 20px;
+        left: 20px;
+      }
+      .right-bottom-button {
+        bottom: 20px;
         right: 20px;
       }
 
@@ -185,8 +201,8 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%; /* 与卡片相同的圆角 */
-        display: block; /* 移除底部间隙 */
+        border-radius: 50%;
+        display: block;
       }
 
       .uploader-name {
@@ -238,12 +254,20 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
           <div class="button right-button glass-card">Rating: ${(
             chartInfo.rating * 5
           ).toFixed(2)}</div>
-          <div class="button bottom-button glass-card">${chartInfo.level}</div>
+          <div class="button left-bottom-button glass-card">${
+            chartInfo.name
+          }</div>
+          <div class="button right-bottom-button glass-card">${
+            chartInfo.level
+          }</div>
         </div>
-        <div class="card name-card">${chartInfo.name}</div>
         <div class="bottom-cards">
-          <div class="card small-card">${chartInfo.charter}</div>
-          <div class="card small-card">${chartInfo.composer}</div>
+          <div class="card small-card">
+            ${chartInfo.charter}
+          </div>
+          <div class="card small-card">
+            ${chartInfo.composer}
+          </div>
         </div>
       </div>
       <div class="right-column">
@@ -260,6 +284,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
           </div>
           <div class="description-section glass-card">
             <h2>Description</h2>
+            <br />
             ${chartInfo.description}
           </div>
           <div class="tags-section">
@@ -270,6 +295,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
     </div>
   </body>
 </html>
+
 `;
   return htmlTemplate;
 }
@@ -287,7 +313,6 @@ export function apply(ctx: Context) {
         return JSON.stringify(chartInfo, null, 2);
       }
       const htmlTemplate = await generateChartInfoHtml(chartInfo);
-
       return await ctx.puppeteer.render(htmlTemplate);
     });
 }
