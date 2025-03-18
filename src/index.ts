@@ -1,7 +1,7 @@
 import { Context, Schema, h } from "koishi";
 import { ChartInfo, UserInfo } from "./types";
 
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 
 export const name = "aphira";
 
