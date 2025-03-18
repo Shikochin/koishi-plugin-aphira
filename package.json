@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-aphira",
   "description": "A bunch of essential tools for Phira",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -32,10 +32,14 @@
     "plugin"
   ],
   "peerDependencies": {
-    "koishi": "^4.18.7"
+    "koishi": "^4.18.7",
+    "koishi-plugin-puppeteer": "^3.9.0"
   },
   "dependencies": {
-    "koishi-plugin-puppeteer": "^3.9.0",
     "puppeteer": "^24.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.39",
+    "typescript": "^4.9.5"
   }
 }

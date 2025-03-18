@@ -21,6 +21,7 @@ export interface ChartInfo {
   created: string;
   updated: string;
   chartUpdated: string;
+  err?: "Not found";
 }
 
 export interface UserInfo {

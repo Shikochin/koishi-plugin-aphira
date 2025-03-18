@@ -1,7 +1,7 @@
-import { Context, Schema, h } from "koishi";
+import { Context, Schema } from "koishi";
 import { ChartInfo, UserInfo } from "./types";
 
-import puppeteer from "koishi-plugin-puppeteer";
+import {} from "koishi-plugin-puppeteer";
 
 export const name = "aphira";
 
@@ -23,16 +23,15 @@ async function getUserInfo(id: number): Promise<UserInfo> {
   return await res.json();
 }
 
-export function apply(ctx: Context) {
-  async function renderChartInfo(chartInfo: ChartInfo) {
-    const userInfo = await getUserInfo(chartInfo.uploader);
-    let tags = "";
-    chartInfo.tags.forEach((tag, index) => {
-      if (index < 4) {
-        tags += `<div class="tag glass-card">${tag}</div>`;
-      }
-    });
-    const htmlTemplate = `<!DOCTYPE html>
+async function generateChartInfoHtml(chartInfo: ChartInfo) {
+  const userInfo = await getUserInfo(chartInfo.uploader);
+  let tags = "";
+  chartInfo.tags.forEach((tag, index) => {
+    if (index < 4) {
+      tags += `<div class="tag glass-card">${tag}</div>`;
+    }
+  });
+  const htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -272,30 +271,23 @@ export function apply(ctx: Context) {
   </body>
 </html>
 `;
-    await ctx.puppeteer.start();
-    const page = await ctx.puppeteer.page();
-    await page.setContent(htmlTemplate);
+  return htmlTemplate;
+}
 
-    await page.setViewport({ width: 1920, height: 1080 });
-    const container = await page.waitForSelector(".container");
-    // 截图并保存为文件
-    const image = await container.screenshot({
-      type: "png",
-      encoding: "binary",
-    });
-    await ctx.puppeteer.stop();
-    return image;
-  }
+export function apply(ctx: Context) {
   ctx
     .command("chartinfo <id:number>")
     .option("origin", "-o 输出原始数据")
+    .example("chartinfo 23232")
+    .usage("chartinfo 谱面id")
     .alias("谱面信息")
-    .action(async ({ session, options }, id) => {
+    .action(async ({ options }, id) => {
       const chartInfo = await getChartInfo(id);
       if (options.origin) {
         return JSON.stringify(chartInfo, null, 2);
       }
-      const image = await renderChartInfo(chartInfo);
-      session.send(h.image(image, "image/png"));
+      const htmlTemplate = await generateChartInfoHtml(chartInfo);
+
+      return await ctx.puppeteer.render(htmlTemplate);
     });
 }
