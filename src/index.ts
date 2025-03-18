@@ -1,7 +1,7 @@
 import { Context, Schema, h } from "koishi";
 import { ChartInfo, UserInfo } from "./types";
 
-import puppeteer from "puppeteer-core";
+import puppeteer from "koishi-plugin-puppeteer";
 
 export const name = "aphira";
 
@@ -23,15 +23,16 @@ async function getUserInfo(id: number): Promise<UserInfo> {
   return await res.json();
 }
 
-async function renderChartInfo(chartInfo: ChartInfo) {
-  const userInfo = await getUserInfo(chartInfo.uploader);
-  let tags = "";
-  chartInfo.tags.forEach((tag, index) => {
-    if (index < 4) {
-      tags += `<div class="tag glass-card">${tag}</div>`;
-    }
-  });
-  const htmlTemplate = `<!DOCTYPE html>
+export function apply(ctx: Context) {
+  async function renderChartInfo(chartInfo: ChartInfo) {
+    const userInfo = await getUserInfo(chartInfo.uploader);
+    let tags = "";
+    chartInfo.tags.forEach((tag, index) => {
+      if (index < 4) {
+        tags += `<div class="tag glass-card">${tag}</div>`;
+      }
+    });
+    const htmlTemplate = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -271,19 +272,20 @@ async function renderChartInfo(chartInfo: ChartInfo) {
   </body>
 </html>
 `;
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(htmlTemplate);
+    await ctx.puppeteer.start();
+    const page = await ctx.puppeteer.page();
+    await page.setContent(htmlTemplate);
 
-  await page.setViewport({ width: 1920, height: 1080 });
-  const container = await page.waitForSelector(".container");
-  // 截图并保存为文件
-  const image = await container.screenshot({ type: "png", encoding: "binary" });
-  await browser.close();
-  return image;
-}
-
-export function apply(ctx: Context) {
+    await page.setViewport({ width: 1920, height: 1080 });
+    const container = await page.waitForSelector(".container");
+    // 截图并保存为文件
+    const image = await container.screenshot({
+      type: "png",
+      encoding: "binary",
+    });
+    await ctx.puppeteer.stop();
+    return image;
+  }
   ctx
     .command("chartinfo <id:number>")
     .option("origin", "-o 输出原始数据")
