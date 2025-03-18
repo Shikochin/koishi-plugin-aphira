@@ -1,4 +1,4 @@
-import { Context, Schema } from "koishi";
+import { Context, Schema, h } from "koishi";
 import { ChartInfo, UserInfo } from "./types";
 
 import {} from "koishi-plugin-puppeteer";
@@ -39,8 +39,8 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+SC:wght@100..900&family=Poppins:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+SC:wght@100..900&family=Poppins:ital@0;1&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: Poppins, Noto Sans SC,Noto Sans JP, serif;
@@ -49,6 +49,8 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         display: flex;
         justify-content: center;
         color: white;
+        background: rgb(238,174,202);
+        background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
       }
 
       .container {
@@ -78,7 +80,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         -webkit-backdrop-filter: blur(10px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.3);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: rgba(100, 135, 148, 0.8);
+        background-color: rgba(100, 135, 148, 0.7);
         border-radius: 20px;
         padding: 20px;
         position: relative;
@@ -143,7 +145,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       }
 
       .button {
-        background-color: rgba(42, 42, 42, 0.8);
+        background-color: rgba(42, 42, 42, 0.7);
         border-radius: 15px;
         padding: 10px 20px;
         display: inline-block;
@@ -179,7 +181,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       .uploader-section {
         display: flex;
         align-items: center;
-        background-color: rgba(42, 42, 42, 0.8);
+        background-color: rgba(42, 42, 42, 0.7);
         border-radius: 20px;
         padding: 10px;
         margin-bottom: 20px;
@@ -212,7 +214,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
 
       .description-section {
         flex: 1;
-        background-color: rgba(218, 240, 247, 0.9);
+        background-color: rgba(218, 240, 247, 0.7);
         border-radius: 20px;
         display: flex;
         flex-wrap: wrap;
@@ -230,7 +232,7 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
       }
 
       .tag {
-        background-color: rgba(42, 42, 42, 0.8);
+        background-color: rgba(42, 42, 42, 0.7);
         border-radius: 15px;
         padding: 10px 20px;
         flex: 1;
@@ -263,10 +265,10 @@ async function generateChartInfoHtml(chartInfo: ChartInfo) {
         </div>
         <div class="bottom-cards">
           <div class="card small-card">
-            ${chartInfo.charter}
+            Charter: ${chartInfo.charter}
           </div>
           <div class="card small-card">
-            ${chartInfo.composer}
+            Composer: ${chartInfo.composer}
           </div>
         </div>
       </div>
@@ -314,5 +316,15 @@ export function apply(ctx: Context) {
       }
       const htmlTemplate = await generateChartInfoHtml(chartInfo);
       return await ctx.puppeteer.render(htmlTemplate);
+    });
+  ctx
+    .command("chartsend <id:number>")
+    .example("chartsend 23232")
+    .usage("发送该谱面")
+    .alias("发送谱面")
+    .action(async ({ session }, id) => {
+      const chartInfo = await getChartInfo(id);
+      const file = await fetch(chartInfo.file);
+      session.send(h.file(await file.arrayBuffer(), "application/zip"));
     });
 }
